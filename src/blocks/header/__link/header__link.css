@@ -1,0 +1,11 @@
+.header__link {
+    width: 142px;
+    height: 33px;
+}
+
+@media (max-width: 565px) {
+    .header__link {
+        width: 104px;
+        height: 24px;
+    }
+}
