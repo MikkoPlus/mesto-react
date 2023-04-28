@@ -63,8 +63,8 @@ class Api {
     return this._fetchGetRequest(this._cardsUrl);
   }
 
-  postNewCard(inputValues) {
-    const bodyData = this._transformDataToJSON(inputValues);
+  postNewCard(requestObj) {
+    const bodyData = this._transformDataToJSON(requestObj);
     return this._fetchPostRequest(this._cardsUrl, "POST", bodyData);
   }
 
@@ -78,8 +78,8 @@ class Api {
     return this._fetchPostRequest(this._profileUrl, "PATCH", bodyData);
   }
 
-  postAvatar(inputValues) {
-    const bodyData = this._transformDataToJSON(inputValues);
+  postAvatar(requestObj) {
+    const bodyData = this._transformDataToJSON(requestObj);
     return this._fetchPostRequest(this._profileAvatarUrl, "PATCH", bodyData);
   }
 

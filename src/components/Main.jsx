@@ -32,7 +32,7 @@ function Main(props) {
               card={card}
               onCardClick={props.onCardClick}
               onCardLike={props.onCardLike}
-              onCardDelete={props.onCardDelete}
+              onTrashBagClick={props.onTrashBagClick}
             />
           ))}
         </ul>
