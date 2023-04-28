@@ -1,30 +1,53 @@
 import trashBagIcon from "../images/icons/trash.svg";
+import { useContext } from "react";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-function Card(props) {
-  function handleClick() {
-    props.onCardClick(props.card);
+function Card({ card, onCardClick, onCardLike, onCardDelete }) {
+  const currentUser = useContext(CurrentUserContext);
+  const isOwnersCard = card.owner._id === currentUser._id;
+  const isLiked = card.likes.some((i) => i._id === currentUser._id);
+
+  function handleCardClick() {
+    onCardClick(card);
+  }
+
+  function handleLikeClick() {
+    onCardLike(card);
+  }
+
+  function handleTrashBagClick() {
+    onCardDelete(card._id)
   }
 
   return (
     <li className="place-card">
+      {isOwnersCard && (
+        <img
+          src={trashBagIcon}
+          alt="trash-bag"
+          className="place-card__trash-bag"
+          onClick={handleTrashBagClick}
+        />
+      )}
       <img
-        src={trashBagIcon}
-        alt="trash-bag"
-        className="place-card__trash-bag"
-      />
-      <img
-        src={props.card.link}
-        alt={props.card.name}
+        src={card.link}
+        alt={card.name}
         className="place-card__image"
-        onClick={handleClick}
+        onClick={handleCardClick}
       />
       <div className="place-card__footer">
-        <h3 className="place-card__descr">{props.card.name}</h3>
+        <h3 className="place-card__descr">{card.name}</h3>
         <div className="place-card__like">
-          <button className="place-card__like-btn">
-            <div className="place-card__heart"></div>
+          <button className="place-card__like-btn" onClick={handleLikeClick}>
+            <div
+              className={`place-card__heart ${
+                isLiked && "place-card__heart_like"
+              }`}
+            ></div>
           </button>
-          <div className="place-card__counter">{props.card.likes.length}</div>
+          <div className="place-card__counter">
+            {card.likes.length !== 0 ? card.likes.length : ""}
+          </div>
         </div>
       </div>
     </li>

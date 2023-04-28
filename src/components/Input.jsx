@@ -8,7 +8,8 @@ function Input(props) {
         type={props.type}
         className={`form__input form__input_type_${props.type}`}
         placeholder={props.placeholder}
-        {...props}
+        value={props.value}
+        onChange={props.onChange}
       />
       <span id={`input-${props.id}-error`} className="form__input-text-error" />
     </>
