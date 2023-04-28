@@ -1,6 +1,6 @@
-import trashBagIcon from "../images/icons/trash.svg";
+import trashBagIcon from "../../images/icons/trash.svg";
 import { useContext } from "react";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
 function Card({ card, onCardClick, onCardLike, onTrashBagClick }) {
   const currentUser = useContext(CurrentUserContext);
@@ -16,7 +16,7 @@ function Card({ card, onCardClick, onCardLike, onTrashBagClick }) {
   }
 
   function handleTrashBagClick() {
-    onTrashBagClick(card._id)
+    onTrashBagClick(card._id);
   }
 
   return (

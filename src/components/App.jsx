@@ -1,49 +1,23 @@
 import { useState, useEffect } from "react";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
+
 import Header from "./Header";
 import Main from "./Main";
-import ImagePopup from "./ImagePopup";
 import Footer from "./Footer";
 import api from "../utils/Api";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
-import EditProfilePopup from "./EditProfilePopup";
-import EditAvatarPopup from "./EditAvatarPopup";
-import AddPlacePopup from "./AddPlacePopup";
-import ConfirmDeletePopup from "./ConfirmDelete";
+import Popups from "./Popups/Popups";
 
 function App() {
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isConfirmPopupOpen, setIsConfirmPopupOpen] = useState(false);
-  const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [cardId, setCardId] = useState("");
 
-  useEffect(() => {
-    api
-      .getCards()
-      .then((data) => {
-        setCards(
-          data.map((item) => {
-            return {
-              name: item.name,
-              _id: item._id,
-              link: item.link,
-              likes: item.likes,
-              owner: item.owner,
-            };
-          })
-        );
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    api.getProfileData().then((data) => setCurrentUser(data));
-  }, []);
-
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [isConfirmPopupOpen, setIsConfirmPopupOpen] = useState(false);
+  const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
 
   function handleLikeCard(card) {
     const isLiked = card.likes.some((human) => human._id === currentUser._id);
@@ -148,6 +122,29 @@ function App() {
     }, 500);
   }
 
+  useEffect(() => {
+    api
+      .getCards()
+      .then((data) => {
+        setCards(
+          data.map((item) => {
+            return {
+              name: item.name,
+              _id: item._id,
+              link: item.link,
+              likes: item.likes,
+              owner: item.owner,
+            };
+          })
+        );
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    api.getProfileData().then((data) => setCurrentUser(data));
+  }, []);
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
@@ -163,38 +160,20 @@ function App() {
           card={selectedCard}
         />
         <Footer />
-        <section className="popups">
-          <EditAvatarPopup
-            isOpen={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            onUpdateAvatar={handleUpdateAvatar}
-          />
-
-          <EditProfilePopup
-            isOpen={isEditProfilePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateUser={handleUpdateUser}
-          />
-
-          <AddPlacePopup
-            isOpen={isAddPlacePopupOpen}
-            onClose={closeAllPopups}
-            onAddPlace={handleAddPlace}
-          />
-
-          <ConfirmDeletePopup
-            isOpen={isConfirmPopupOpen}
-            onClose={closeAllPopups}
-            onDeleteCard={handleDeleteCard}
-            currentCardId={cardId}
-          />
-
-          <ImagePopup
-            card={selectedCard}
-            onClose={closeAllPopups}
-            isOpen={isImagePopupOpen}
-          />
-        </section>
+        <Popups
+          isEditProfilePopupOpen={isEditProfilePopupOpen}
+          isEditAvatarPopupOpen={isEditAvatarPopupOpen}
+          isAddPlacePopupOpen={isAddPlacePopupOpen}
+          isConfirmPopupOpen={isConfirmPopupOpen}
+          isImagePopupOpen={isImagePopupOpen}
+          closeAllPopups={closeAllPopups}
+          onUpdateAvatar={handleUpdateAvatar}
+          onUpdateUser={handleUpdateUser}
+          onAddPlace={handleAddPlace}
+          onDeleteCard={handleDeleteCard}
+          currentCardId={cardId}
+          selectedCard={selectedCard}
+        />
       </div>
     </CurrentUserContext.Provider>
   );

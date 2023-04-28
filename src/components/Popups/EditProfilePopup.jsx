@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import PopupWithForm from "./PopupWithForm";
-import Input from "./Input";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import Input from "../SingleComponent/Input";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
 function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
   const [name, setName] = useState("");
@@ -11,45 +11,48 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
   useEffect(() => {
     setName(currentUser.name);
     setDescription(currentUser.about);
-  }, [currentUser]);
+  }, [currentUser, isOpen]);
 
   function handleSubmit(e) {
     e.preventDefault();
 
     onUpdateUser({
-        name,
-        about: description
-    })
+      name,
+      about: description,
+    });
   }
 
   return (
     <PopupWithForm
+      Novalidate
       name="edit-profile"
       title="Редактировать профиль"
       btnText="Сохранить"
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      inputNames={["name", "about"]}
+      inputValues={[name, description]}
     >
       <Input
-        id="profile-name"
         type="text"
         placeholder="Введите имя"
         name="name"
         minLength="2"
         maxLength="20"
-        value={name || ''}
+        value={name || ""}
         onChange={(e) => setName(e.target.value)}
+        isPopupOpen={isOpen}
       />
       <Input
-        id="profile-job"
         type="text"
         placeholder="Введите занятие"
         name="about"
         minLength="2"
         maxLength="200"
-        value={description || ''}
+        value={description || ""}
         onChange={(e) => setDescription(e.target.value)}
+        isPopupOpen={isOpen}
       />
     </PopupWithForm>
   );

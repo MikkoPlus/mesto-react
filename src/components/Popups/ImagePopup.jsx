@@ -1,6 +1,6 @@
-import closeIcon from "../images/icons/close-icon.svg";
+import closeIcon from "../../images/icons/close-icon.svg";
 
-function ImagePopup({ isOpen, onClose, ...props }) {
+function ImagePopup({ isOpen, onClose, card }) {
   function closePopup(evt) {
     if (
       evt.target.classList.contains("popup__close") ||
@@ -19,11 +19,11 @@ function ImagePopup({ isOpen, onClose, ...props }) {
       <div className="popup__window popup__window_type_fullscreen-img">
         <img src={closeIcon} alt="Close" className="popup__close" />
         <img
-          src={props.card.link || "#"}
-          alt={props.card.name || "#"}
+          src={card.link || "#"}
+          alt={card.name || "#"}
           className="popup__fullscreen-image"
         />
-        <h3 className="popup__descr">{props.card.name || ""}</h3>
+        <h3 className="popup__descr">{card.name || ""}</h3>
       </div>
     </div>
   );
