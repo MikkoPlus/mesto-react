@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import { ApiRequestLoadingContext } from "../contexts/ApiRequestLoadingContext";
 
-import Header from "./Header";
-import Main from "./Main";
-import Footer from "./Footer";
+import Header from "./Header/Header";
+import Main from "./Main/Main";
+import Footer from "./Footer/Footer";
 import api from "../utils/Api";
 import Popups from "./Popups/Popups";
 
@@ -18,12 +19,22 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isConfirmPopupOpen, setIsConfirmPopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  function fetchGetResponse(res) {
+    if (res.ok) {
+      return res.json();
+    } else {
+      return Promise.reject(`Ошибка: ${res.status}`);
+    }
+  }
 
   function handleLikeCard(card) {
     const isLiked = card.likes.some((human) => human._id === currentUser._id);
 
     api
       .toggleLikeStatus(card._id, isLiked)
+      .then((response) => fetchGetResponse(response))
       .then((newCard) => {
         setCards((state) =>
           state.map((oldCard) => (oldCard._id === card._id ? newCard : oldCard))
@@ -33,39 +44,59 @@ function App() {
   }
 
   function handleDeleteCard(cardId) {
+    setIsLoading(true);
     api
       .deleteCard(cardId)
+      .then((response) => fetchGetResponse(response))
       .then(() => {
         setCards(cards.filter((card) => card._id !== cardId));
       })
       .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => closeAllPopups());
+      .finally(() => {
+        setIsLoading(false);
+        closeAllPopups();
+      });
   }
 
   function handleUpdateUser(requestObj) {
+    setIsLoading(true);
     api
       .setUserInfo(requestObj)
+      .then((response) => fetchGetResponse(response))
       .then((updateProfileData) => setCurrentUser(updateProfileData))
       .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => closeAllPopups());
+      .finally(() => {
+        setIsLoading(false);
+        closeAllPopups();
+      });
   }
 
   function handleUpdateAvatar(requestObj) {
+    setIsLoading(true);
     api
       .postAvatar(requestObj)
+      .then((response) => fetchGetResponse(response))
       .then((updateProfileData) => setCurrentUser(updateProfileData))
       .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => closeAllPopups());
+      .finally(() => {
+        setIsLoading(false);
+        closeAllPopups();
+      });
   }
 
   function handleAddPlace(requestObj) {
+    setIsLoading(true);
     api
       .postNewCard(requestObj)
+      .then((response) => fetchGetResponse(response))
       .then((newCard) => {
         setCards([newCard, ...cards]);
       })
       .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => closeAllPopups());
+      .finally(() => {
+        setIsLoading(false);
+        closeAllPopups();
+      });
   }
 
   function handleAvatarClick() {
@@ -125,6 +156,7 @@ function App() {
   useEffect(() => {
     api
       .getCards()
+      .then((response) => fetchGetResponse(response))
       .then((data) => {
         setCards(
           data.map((item) => {
@@ -142,7 +174,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    api.getProfileData().then((data) => setCurrentUser(data));
+    api
+      .getProfileData()
+      .then((response) => fetchGetResponse(response))
+      .then((data) => setCurrentUser(data));
   }, []);
 
   return (
@@ -160,20 +195,22 @@ function App() {
           card={selectedCard}
         />
         <Footer />
-        <Popups
-          isEditProfilePopupOpen={isEditProfilePopupOpen}
-          isEditAvatarPopupOpen={isEditAvatarPopupOpen}
-          isAddPlacePopupOpen={isAddPlacePopupOpen}
-          isConfirmPopupOpen={isConfirmPopupOpen}
-          isImagePopupOpen={isImagePopupOpen}
-          closeAllPopups={closeAllPopups}
-          onUpdateAvatar={handleUpdateAvatar}
-          onUpdateUser={handleUpdateUser}
-          onAddPlace={handleAddPlace}
-          onDeleteCard={handleDeleteCard}
-          currentCardId={cardId}
-          selectedCard={selectedCard}
-        />
+        <ApiRequestLoadingContext.Provider value={isLoading}>
+          <Popups
+            isEditProfilePopupOpen={isEditProfilePopupOpen}
+            isEditAvatarPopupOpen={isEditAvatarPopupOpen}
+            isAddPlacePopupOpen={isAddPlacePopupOpen}
+            isConfirmPopupOpen={isConfirmPopupOpen}
+            isImagePopupOpen={isImagePopupOpen}
+            closeAllPopups={closeAllPopups}
+            onUpdateAvatar={handleUpdateAvatar}
+            onUpdateUser={handleUpdateUser}
+            onAddPlace={handleAddPlace}
+            onDeleteCard={handleDeleteCard}
+            currentCardId={cardId}
+            selectedCard={selectedCard}
+          />
+        </ApiRequestLoadingContext.Provider>
       </div>
     </CurrentUserContext.Provider>
   );

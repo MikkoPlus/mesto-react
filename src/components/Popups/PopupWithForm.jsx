@@ -1,5 +1,9 @@
 import closeIcon from "../../images/icons/close-icon.svg";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useContext } from "react";
+import { ApiRequestLoadingContext } from "../../contexts/ApiRequestLoadingContext";
+import { Transition } from "react-transition-group";
+import Spinner from "../SingleComponent/Spinner";
+
 function PopupWithForm({
   name,
   title,
@@ -20,6 +24,7 @@ function PopupWithForm({
       onClose();
     }
   }
+  const isLoading = useContext(ApiRequestLoadingContext);
   const [isFormValid, setIsFormValid] = useState(false);
 
   const formRef = useRef();
@@ -53,17 +58,26 @@ function PopupWithForm({
         <form
           ref={formRef}
           noValidate={noValidate}
-          className="form"
+          className={`form ${isLoading ? "form_is-loading" : ""}`}
           id={`${name}-form`}
           name={name}
           onSubmit={onSubmit}
         >
+          <Transition
+            in={isLoading}
+            timeout={500}
+            appear
+            mountOnEnter
+            unmountOnExit
+          >
+            {(state) => <Spinner className={`spinner ${state}`} />}
+          </Transition>
           {children}
           <button
             type="submit"
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
             className={`popup__button form__btn ${
-              !isFormValid ? "form__btn_disabled" : ""
+              !isFormValid || isLoading ? "form__btn_disabled" : ""
             }`}
           >
             {btnText}
