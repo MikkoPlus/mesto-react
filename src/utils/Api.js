@@ -9,13 +9,17 @@ class Api {
     this._cardsUrl = `${this._baseUrl}cards`;
   }
 
+  _getResponse(res) {
+    return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
+  }
+
   _fetchGetRequest(url) {
     return fetch(url, {
       method: "GET",
       headers: {
         authorization: this._autorisationToken,
       },
-    });
+    }).then((response) => this._getResponse(response));
   }
 
   _fetchPostRequest(url, method, bodyData) {
@@ -26,7 +30,7 @@ class Api {
         "Content-Type": "application/json",
       },
       body: bodyData,
-    });
+    }).then((response) => this._getResponse(response));
   }
 
   _fetchDeleteRequest(url, id) {
@@ -35,7 +39,7 @@ class Api {
       headers: {
         authorization: this._autorisationToken,
       },
-    });
+    }).then((response) => this._getResponse(response));
   }
 
   _fetchChangeLikesState(url, id, method) {
@@ -44,7 +48,7 @@ class Api {
       headers: {
         authorization: this._autorisationToken,
       },
-    });
+    }).then((response) => this._getResponse(response));
   }
 
   _transformDataToJSON(inputValues) {

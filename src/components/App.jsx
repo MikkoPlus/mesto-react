@@ -21,20 +21,11 @@ function App() {
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  function fetchGetResponse(res) {
-    if (res.ok) {
-      return res.json();
-    } else {
-      return Promise.reject(`Ошибка: ${res.status}`);
-    }
-  }
-
   function handleLikeCard(card) {
     const isLiked = card.likes.some((human) => human._id === currentUser._id);
 
     api
       .toggleLikeStatus(card._id, isLiked)
-      .then((response) => fetchGetResponse(response))
       .then((newCard) => {
         setCards((state) =>
           state.map((oldCard) => (oldCard._id === card._id ? newCard : oldCard))
@@ -47,78 +38,71 @@ function App() {
     setIsLoading(true);
     api
       .deleteCard(cardId)
-      .then((response) => fetchGetResponse(response))
       .then(() => {
         setCards(cards.filter((card) => card._id !== cardId));
+        closeAllPopups();
       })
       .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => {
-        setIsLoading(false);
-        closeAllPopups();
-      });
+      .finally(() => setIsLoading(false));
   }
 
   function handleUpdateUser(requestObj) {
     setIsLoading(true);
     api
       .setUserInfo(requestObj)
-      .then((response) => fetchGetResponse(response))
-      .then((updateProfileData) => setCurrentUser(updateProfileData))
-      .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => {
-        setIsLoading(false);
+      .then((updateProfileData) => {
+        setCurrentUser(updateProfileData);
         closeAllPopups();
-      });
+      })
+      .catch((err) => console.log(`Ошибка: ${err.status}`))
+      .finally(() => setIsLoading(false));
   }
 
   function handleUpdateAvatar(requestObj) {
     setIsLoading(true);
     api
       .postAvatar(requestObj)
-      .then((response) => fetchGetResponse(response))
-      .then((updateProfileData) => setCurrentUser(updateProfileData))
-      .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => {
-        setIsLoading(false);
+      .then((updateProfileData) => {
+        setCurrentUser(updateProfileData);
         closeAllPopups();
-      });
+      })
+
+      .catch((err) => console.log(`Ошибка: ${err.status}`))
+      .finally(() => setIsLoading(false));
   }
 
   function handleAddPlace(requestObj) {
     setIsLoading(true);
     api
       .postNewCard(requestObj)
-      .then((response) => fetchGetResponse(response))
       .then((newCard) => {
         setCards([newCard, ...cards]);
+        closeAllPopups();
       })
       .catch((err) => console.log(`Ошибка: ${err.status}`))
-      .finally(() => {
-        setIsLoading(false);
-        closeAllPopups();
-      });
+      .finally(() => setIsLoading(false));
   }
 
   function handleAvatarClick() {
-    return setIsEditAvatarPopupOpen(!isEditAvatarPopupOpen);
+    return setIsEditAvatarPopupOpen(true);
   }
 
   function handleEditProfileClick() {
-    return setIsEditProfilePopupOpen(!isEditProfilePopupOpen);
+    return setIsEditProfilePopupOpen(true);
   }
 
   function handleAddCardClick() {
-    return setIsAddPlacePopupOpen(!isAddPlacePopupOpen);
+    return setIsAddPlacePopupOpen(true);
   }
 
   function handleTrashBagClick(currentCardId) {
-    setIsConfirmPopupOpen(!isConfirmPopupOpen);
+    setIsConfirmPopupOpen(true);
     setCardId(currentCardId);
   }
 
   function handleCardClick(card) {
     setSelectedCard(card);
-    setIsImagePopupOpen(!isImagePopupOpen);
+    setIsImagePopupOpen(true);
   }
 
   const isPopupOpen =
@@ -156,19 +140,8 @@ function App() {
   useEffect(() => {
     api
       .getCards()
-      .then((response) => fetchGetResponse(response))
       .then((data) => {
-        setCards(
-          data.map((item) => {
-            return {
-              name: item.name,
-              _id: item._id,
-              link: item.link,
-              likes: item.likes,
-              owner: item.owner,
-            };
-          })
-        );
+        setCards(data);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -176,8 +149,8 @@ function App() {
   useEffect(() => {
     api
       .getProfileData()
-      .then((response) => fetchGetResponse(response))
-      .then((data) => setCurrentUser(data));
+      .then((data) => setCurrentUser(data))
+      .catch((err) => console.log(err));
   }, []);
 
   return (
