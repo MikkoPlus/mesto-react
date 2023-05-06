@@ -38,7 +38,6 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://github.com/MikkoPlus/mesto-react",
   "devDependencies": {
     "gh-pages": "^5.0.0"
   }
